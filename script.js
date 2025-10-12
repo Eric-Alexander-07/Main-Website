@@ -107,7 +107,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnNext = document.getElementById('t-next');
   if (track && dotsWrap && btnPrev && btnNext) {
     const slides = Array.from(track.querySelectorAll('.slide'));
-    const initialIndex = slides.length > 1 ? 1 : 0;
+    // On mobile, start at the first slide; on larger screens center-start at 2nd if available
+    const isMobile = window.matchMedia('(max-width: 720px)').matches;
+    const initialIndex = isMobile ? 0 : (slides.length > 1 ? 1 : 0);
     let index = initialIndex;
 
     const createDots = () => {
