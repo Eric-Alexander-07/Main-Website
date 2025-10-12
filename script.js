@@ -1,6 +1,6 @@
 // Config: change to your real email/phone
-const CONTACT_EMAIL = 'kontakt@deine-domain.tld';
-const WHATSAPP_NUMBER = '4915123456789'; // e.g. 49 + number without leading 0
+const CONTACT_EMAIL = 'thericschuck@gmail.com';
+const WHATSAPP_NUMBER = '4917634445821'; // e.g. 49 + number without leading 0
 
 document.addEventListener('DOMContentLoaded', () => {
   // Mobile nav toggle
@@ -238,6 +238,78 @@ document.addEventListener('DOMContentLoaded', () => {
     // start: wenn Padding aktiv (zu wenige Karten) -> zentriere erste, sonst flush links
     if (usePad) pGo(0, false); else projects.scrollLeft = 0;
   }
+
+  // Pricing cards: animated expand/collapse of features, per-card independent
+  const priceCards = document.querySelectorAll('.card.price');
+  priceCards.forEach(card => {
+    const list = card.querySelector('.features');
+    if (!list) return;
+    const items = Array.from(list.querySelectorAll('li'));
+    if (items.length <= 3) return; // nothing to collapse
+
+    // Start collapsed
+    card.classList.add('collapsed');
+
+    // Helper: animate height from current to target
+    const animateHeight = (el, targetHeight) => {
+      const from = el.getBoundingClientRect().height;
+      el.style.height = from + 'px';
+      // force reflow
+      void el.offsetHeight;
+      el.style.height = targetHeight + 'px';
+      const onEnd = () => {
+        el.style.height = '';
+        el.removeEventListener('transitionend', onEnd);
+      };
+      el.addEventListener('transitionend', onEnd);
+    };
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-ghost toggle-features';
+    btn.setAttribute('aria-expanded', 'false');
+    btn.textContent = 'Alle Vorteile anzeigen';
+    btn.addEventListener('click', () => {
+      const currentlyCollapsed = card.classList.contains('collapsed');
+      if (currentlyCollapsed) {
+        // expand: measure target height with all items visible
+        const hCollapsed = list.getBoundingClientRect().height;
+        card.classList.remove('collapsed');
+        const hExpanded = list.scrollHeight;
+        // revert DOM state for animation start
+        card.classList.add('collapsed');
+        list.style.height = hCollapsed + 'px';
+        // next frame: switch to expanded + animate
+        requestAnimationFrame(() => {
+          card.classList.remove('collapsed');
+          animateHeight(list, hExpanded);
+        });
+        btn.textContent = 'Weniger anzeigen';
+        btn.setAttribute('aria-expanded', 'true');
+      } else {
+        // collapse: measure current and target collapsed height
+        const hExpanded = list.getBoundingClientRect().height;
+        // compute collapsed height by temporarily applying class
+        card.classList.add('collapsed');
+        const hCollapsed = list.scrollHeight; // now reflects the shorter content
+        card.classList.remove('collapsed');
+        list.style.height = hExpanded + 'px';
+        requestAnimationFrame(() => {
+          card.classList.add('collapsed');
+          animateHeight(list, hCollapsed);
+        });
+        btn.textContent = 'Alle Vorteile anzeigen';
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    // Insert after the features list but before primary CTA if present
+    const cta = card.querySelector('.btn.btn-primary');
+    if (cta && cta.parentElement === card) {
+      card.insertBefore(btn, cta);
+    } else {
+      list.insertAdjacentElement('afterend', btn);
+    }
+  });
 
   // FAQ accordion
   document.querySelectorAll('.faq-q').forEach(btn => {
