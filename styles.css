@@ -132,8 +132,12 @@ p { color: var(--muted); margin: 0 0 12px; }
     radial-gradient(200px 140px at 80% 20%, rgba(34,211,238,.25), transparent 60%),
     radial-gradient(200px 200px at 20% 60%, rgba(109,94,252,.3), transparent 60%),
     linear-gradient(180deg, #0f1736, #0c1330);
-  border: 1px solid var(--border); margin-bottom: 12px;
+  border: 1px solid var(--border); margin-bottom: 12px; position: relative; overflow: hidden;
 }
+/* If an image is provided, use it to fill the media area */
+.project .project-media img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; }
+/* Remove decorative gradient when an image exists */
+.project .project-media:has(img) { background: none; }
 .project .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
 .project .tags span { font-size: .8rem; color: var(--muted); border: 1px solid var(--border); padding: 4px 8px; border-radius: 999px; }
 .project h3 { margin: 4px 0 6px; }
@@ -234,6 +238,11 @@ input:focus, textarea:focus { border-color: var(--ring); box-shadow: 0 0 0 4px r
 .form textarea { resize: none; }
 .form-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .form-note { min-height: 20px; color: var(--muted); }
+
+/* Pricing: collapse/expand features */
+.card.price .features { display: grid; gap: 6px; overflow: hidden; transition: height .28s ease; }
+.card.price.collapsed .features li:nth-child(n+4) { display: none; }
+.card.price .toggle-features { height: 36px; padding: 0 12px; margin-top: 6px; }
 
 /* Footer */
 .site-footer { border-top: 1px solid var(--border); padding: 26px 0; background: rgba(0,0,0,.15); }
