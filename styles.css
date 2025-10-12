@@ -102,10 +102,12 @@ p { color: var(--muted); margin: 0 0 12px; }
 @keyframes shimmer { 50% { transform: translateX(100%);} }
 
 /* Animated wireframe inside hero mockup */
-.wireframe { position: absolute; inset: 8% 6%; display: grid; grid-template-rows: auto 1fr; gap: 8px; }
+.wireframe { position: absolute; inset: 8% 6%; display: grid; grid-template-rows: auto 1fr; gap: 8px; overflow: hidden; }
 .wf-topbar { height: 20px; border: 1px solid var(--border); border-radius: 6px; background: rgba(255,255,255,.04); display: grid; grid-template-columns: 100px 1fr 70px; gap: 6px; align-items: center; padding: 4px 6px; }
 .wf-topbar .wf-logo { height: 10px; border-radius: 4px; background: rgba(255,255,255,.08); }
 .wf-topbar .wf-menu { justify-self: end; width: 60px; height: 8px; border-radius: 4px; background: rgba(255,255,255,.08); }
+.wf-viewport { position: relative; overflow: hidden; }
+.wf-scroll { display: grid; gap: 8px; padding-bottom: 8px; animation: wf-autoscroll 14s linear infinite alternate; will-change: transform; }
 .wf-body { border: 1px solid var(--border); border-radius: 8px; background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)); padding: 8px; display: grid; grid-template-columns: 140px 1fr; gap: 8px; overflow: hidden; }
 .wf-sidebar { display: grid; gap: 6px; }
 .wf-line { height: 10px; border-radius: 4px; background: rgba(255,255,255,.06); position: relative; overflow: hidden; }
@@ -117,6 +119,7 @@ p { color: var(--muted); margin: 0 0 12px; }
 .wf-card { height: 42px; border-radius: 8px; background: rgba(255,255,255,.05); position: relative; overflow: hidden; }
 .wf-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,.12) 50%, transparent 100%); transform: translateX(-100%); animation: wf-shimmer 3.5s ease-in-out infinite; }
 @keyframes wf-shimmer { 50% { transform: translateX(100%);} }
+@keyframes wf-autoscroll { from { transform: translateY(0); } to { transform: translateY(-45%); } }
 
 /* About */
 .grid { display: grid; gap: 22px; }
