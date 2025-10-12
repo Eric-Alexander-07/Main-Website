@@ -16,6 +16,7 @@
 
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="styles.css" />
+  <script defer src="https://unpkg.com/lottie-web/build/player/lottie.min.js"></script>
   <script defer src="script.js"></script>
 </head>
 <body>
@@ -31,6 +32,7 @@
         <span class="bar"></span>
       </button>
       <nav class="main-nav" aria-label="Hauptnavigation">
+        <a href="#stats">Statistiken</a>
         <a href="#services">Leistungen</a>
         <a href="#portfolio">Projekte</a>
         <a href="#about">Über mich</a>
@@ -56,7 +58,9 @@
         </div>
         <div class="hero-visual reveal" aria-hidden="true">
           <div class="mockup">
-            <div class="screen"></div>
+            <div class="screen">
+              <div id="lottie-hero" class="lottie" aria-hidden="true"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -80,12 +84,12 @@
             <li>Sauberer Code, langfristig wartbar</li>
           </ul>
           <div class="tools">
-            <span class="tool">HTML</span>
-            <span class="tool">CSS</span>
-            <span class="tool">JavaScript</span>
-            <span class="tool">React</span>
-            <span class="tool">WordPress</span>
-            <span class="tool">Figma</span>
+            <a class="tool" style="--i:0" href="https://developer.mozilla.org/docs/Web/HTML" target="_blank" rel="noopener">HTML</a>
+            <a class="tool" style="--i:1" href="https://developer.mozilla.org/docs/Web/CSS" target="_blank" rel="noopener">CSS</a>
+            <a class="tool" style="--i:2" href="https://developer.mozilla.org/docs/Web/JavaScript" target="_blank" rel="noopener">JavaScript</a>
+            <a class="tool" style="--i:3" href="https://react.dev/" target="_blank" rel="noopener">React</a>
+            <a class="tool" style="--i:4" href="https://wordpress.org/" target="_blank" rel="noopener">WordPress</a>
+            <a class="tool" style="--i:5" href="https://www.figma.com/" target="_blank" rel="noopener">Figma</a>
           </div>
         </div>
       </div>
@@ -133,12 +137,37 @@
       </div>
     </section>
 
+    <!-- Statistiken / Warum Websites wichtig sind -->
+    <section id="stats" class="section alt">
+      <div class="container">
+        <h2 class="section-title reveal">Zahlen, die überzeugen</h2>
+        <p class="muted reveal">Ersetze die Platzhalter unten mit echten Statistiken und Quellen – ich animiere die Werte und präsentiere sie klar.</p>
+        <div class="grid three stats-grid">
+          <article class="card stat reveal">
+            <div class="value" data-count="42">42%</div>
+            <div class="label">Platzhalterstatistik – ersetze mit eigener Recherche</div>
+            <a class="source" href="#" target="_blank" rel="noopener">Quelle hinzufügen</a>
+          </article>
+          <article class="card stat reveal">
+            <div class="value" data-count="3">3x</div>
+            <div class="label">Platzhalterstatistik – ersetze mit eigener Recherche</div>
+            <a class="source" href="#" target="_blank" rel="noopener">Quelle hinzufügen</a>
+          </article>
+          <article class="card stat reveal">
+            <div class="value" data-count="95">95</div>
+            <div class="label">Platzhalterstatistik – ersetze mit eigener Recherche</div>
+            <a class="source" href="#" target="_blank" rel="noopener">Quelle hinzufügen</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
     <!-- Leistungen / Pakete -->
     <section id="services" class="section alt">
       <div class="container">
         <h2 class="section-title reveal">Leistungen & Pakete</h2>
         <div class="grid three">
-          <article class="card price reveal">
+          <article class="card price tilt reveal">
             <h3>Starter</h3>
             <p class="desc">1-Page Website, modernes Design, Kontaktformular</p>
             <p class="price">ab 299 €</p>
@@ -149,7 +178,7 @@
             </ul>
             <a href="#contact" class="btn btn-primary">Anfragen</a>
           </article>
-          <article class="card price highlight reveal">
+          <article class="card price highlight tilt reveal">
             <h3>Business</h3>
             <p class="desc">bis 5 Seiten, SEO-Optimierung, Google-Eintrag</p>
             <p class="price">ab 599 €</p>
@@ -160,7 +189,7 @@
             </ul>
             <a href="#contact" class="btn btn-primary">Anfragen</a>
           </article>
-          <article class="card price reveal">
+          <article class="card price tilt reveal">
             <h3>Premium</h3>
             <p class="desc">Individuelles Design, Blog, Wartung, Hosting</p>
             <p class="price">ab 999 €</p>
@@ -205,18 +234,93 @@
       </div>
     </section>
 
-    <!-- Kundenstimmen / Testimonials -->
+    <!-- Kundenstimmen / Testimonials (Carousel mit Sternen) -->
     <section id="testimonials" class="section alt">
       <div class="container">
         <h2 class="section-title reveal">Kundenstimmen</h2>
-        <div class="grid two">
-          <blockquote class="card quote reveal">
-            <p>„Eric hat meine Website in Rekordzeit umgesetzt – modern, schnell und genau nach meinen Vorstellungen.“</p>
-            <footer>– Anna, Café am Main</footer>
-          </blockquote>
-          <div class="card quote muted reveal">
-            <p>Bald verfügbar – aktuell in Arbeit.</p>
-            <footer>Transparenz statt leere Versprechen</footer>
+        <div class="carousel reveal centered" aria-label="Kundenstimmen Carousel">
+          <button class="carousel-btn prev" id="t-prev" aria-label="Zurück">‹</button>
+          <div class="carousel-track" id="testimonial-track">
+            <article class="slide card quote" data-id="t1">
+              <div class="stars" role="radiogroup" aria-label="Bewertung setzen">
+                <button class="star" aria-label="1 von 5 Sternen" data-value="1">★</button>
+                <button class="star" aria-label="2 von 5 Sternen" data-value="2">★</button>
+                <button class="star" aria-label="3 von 5 Sternen" data-value="3">★</button>
+                <button class="star" aria-label="4 von 5 Sternen" data-value="4">★</button>
+                <button class="star" aria-label="5 von 5 Sternen" data-value="5">★</button>
+              </div>
+              <p>„Eric hat meine Website in Rekordzeit umgesetzt – modern, schnell und genau nach meinen Vorstellungen.“</p>
+              <footer>– Anna, Café am Main</footer>
+            </article>
+            <article class="slide card quote" data-id="t2">
+              <div class="stars" role="radiogroup" aria-label="Bewertung setzen">
+                <button class="star" aria-label="1 von 5 Sternen" data-value="1">★</button>
+                <button class="star" aria-label="2 von 5 Sternen" data-value="2">★</button>
+                <button class="star" aria-label="3 von 5 Sternen" data-value="3">★</button>
+                <button class="star" aria-label="4 von 5 Sternen" data-value="4">★</button>
+                <button class="star" aria-label="5 von 5 Sternen" data-value="5">★</button>
+              </div>
+              <p>„Top Kommunikation und ein klares Konzept. Die Seite konvertiert spürbar besser.“</p>
+              <footer>– Jonas, Verein 1920 e.V.</footer>
+            </article>
+            <article class="slide card quote" data-id="t3">
+              <div class="stars" role="radiogroup" aria-label="Bewertung setzen">
+                <button class="star" aria-label="1 von 5 Sternen" data-value="1">★</button>
+                <button class="star" aria-label="2 von 5 Sternen" data-value="2">★</button>
+                <button class="star" aria-label="3 von 5 Sternen" data-value="3">★</button>
+                <button class="star" aria-label="4 von 5 Sternen" data-value="4">★</button>
+                <button class="star" aria-label="5 von 5 Sternen" data-value="5">★</button>
+              </div>
+              <p>„Design on point, Technik sauber. Performance und SEO haben sich stark verbessert.“</p>
+              <footer>– Lara, Lokales Business</footer>
+            </article>
+          </div>
+          <button class="carousel-btn next" id="t-next" aria-label="Weiter">›</button>
+        </div>
+        <div class="carousel-dots" id="testimonial-dots" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="section">
+      <div class="container">
+        <h2 class="section-title reveal">Häufige Fragen</h2>
+        <div class="faq reveal">
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false" aria-controls="a1" id="q1">
+              <span>Was kostet eine Website?</span>
+              <span class="caret">▾</span>
+            </button>
+            <div class="faq-a" id="a1" role="region" aria-labelledby="q1" hidden>
+              Die Pakete starten bei 299 € (Starter). Je nach Umfang, Seitenzahl und Funktionen kalkuliere ich transparent – du erhältst vorab ein fixes Angebot.
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false" aria-controls="a2" id="q2">
+              <span>Wie lange dauert die Umsetzung?</span>
+              <span class="caret">▾</span>
+            </button>
+            <div class="faq-a" id="a2" role="region" aria-labelledby="q2" hidden>
+              Eine einfache One‑Page dauert oft 1–2 Wochen. Größere Projekte 3–6 Wochen – abhängig von Feedback und Inhalten.
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false" aria-controls="a3" id="q3">
+              <span>Kann ich die Website später selbst pflegen?</span>
+              <span class="caret">▾</span>
+            </button>
+            <div class="faq-a" id="a3" role="region" aria-labelledby="q3" hidden>
+              Ja. Je nach Bedarf setze ich ein leicht bedienbares CMS auf (z. B. WordPress) und gebe dir eine kurze Einführung.
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false" aria-controls="a4" id="q4">
+              <span>Bietest du auch Hosting & Wartung?</span>
+              <span class="caret">▾</span>
+            </button>
+            <div class="faq-a" id="a4" role="region" aria-labelledby="q4" hidden>
+              Auf Wunsch übernehme ich Hosting, Backups, Updates und Monitoring – damit deine Seite schnell und sicher bleibt.
+            </div>
           </div>
         </div>
       </div>
