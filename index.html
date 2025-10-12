@@ -12,9 +12,9 @@
   <meta property="og:description" content="Moderne, performante Websites mit Fokus auf Klarheit, Design und messbaren Erfolg." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="/" />
-  <meta property="og:image" content="assets/favicon.svg" />
+  <meta property="og:image" content="assets/favicon.png" />
 
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/favicon.png" type="image/png" />
   <link rel="stylesheet" href="styles.css" />
   <script defer src="https://unpkg.com/lottie-web/build/player/lottie.min.js"></script>
   <script defer src="script.js"></script>
@@ -23,7 +23,7 @@
   <header class="site-header">
     <div class="container header-inner">
       <a href="#hero" class="brand" aria-label="Startseite">
-        <span class="brand-mark" aria-hidden="true">ES</span>
+        <img class="brand-logo" src="assets/logo-64.png" srcset="assets/logo-64.png 1x, assets/logo-128.png 2x" alt="Eric Schuck Logo" width="34" height="34" decoding="async" />
         <span class="brand-text">Eric Schuck</span>
       </a>
       <button class="nav-toggle" aria-label="Navigation öffnen" aria-expanded="false">
@@ -86,8 +86,8 @@
     <section id="about" class="section">
       <div class="container grid two">
         <div class="about-media reveal">
-          <div class="avatar" aria-label="Foto von Eric Schuck" title="Eric Schuck">
-            <span>ES</span>
+          <div class="avatar" aria-label="Logo von Eric Schuck" title="Eric Schuck">
+            <img src="assets/logo-192.png" alt="Eric Schuck Logo" width="192" height="192" loading="lazy" />
           </div>
         </div>
         <div class="about-content reveal">
@@ -115,7 +115,9 @@
     <section id="portfolio" class="section">
       <div class="container">
         <h2 class="section-title reveal">Ausgewählte Projekte</h2>
-        <div class="grid three">
+        <div class="projects-wrap">
+          <button class="carousel-btn prev" id="p-prev" aria-label="Zurück">&lsaquo;</button>
+          <div class="grid three projects" id="projects-track">
           <article class="card project reveal">
             <div class="project-media"></div>
             <div class="project-body">
@@ -149,6 +151,8 @@
               </div>
             </div>
           </article>
+          </div>
+          <button class="carousel-btn next" id="p-next" aria-label="Weiter">&rsaquo;</button>
         </div>
       </div>
     </section>
@@ -375,7 +379,7 @@
   <footer class="site-footer">
     <div class="container footer-inner">
       <div class="foot-brand">
-        <span class="brand-mark" aria-hidden="true">ES</span>
+        <img class="brand-logo" src="assets/logo-64.png" alt="Eric Schuck Logo" width="28" height="28" decoding="async" />
         <span>Eric Schuck</span>
       </div>
       <div class="foot-links">

@@ -107,39 +107,66 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnNext = document.getElementById('t-next');
   if (track && dotsWrap && btnPrev && btnNext) {
     const slides = Array.from(track.querySelectorAll('.slide'));
-    let index = 0;
+    const initialIndex = slides.length > 1 ? 1 : 0;
+    let index = initialIndex;
 
-    const resize = () => {
-      // ensure slides are full width of container
-      const w = track.clientWidth;
-      slides.forEach(s => s.style.minWidth = `${w}px`);
-      go(index, false);
+    const createDots = () => {
+      dotsWrap.innerHTML = '';
+      slides.forEach((_, i) => {
+        const d = document.createElement('span');
+        d.className = 'dot' + (i === initialIndex ? ' active' : '');
+        d.addEventListener('click', () => go(i));
+        dotsWrap.appendChild(d);
+      });
     };
-
-    // dots
-    slides.forEach((_, i) => {
-      const d = document.createElement('span');
-      d.className = 'dot' + (i === 0 ? ' active' : '');
-      d.addEventListener('click', () => go(i));
-      dotsWrap.appendChild(d);
-    });
+    createDots();
     const dots = Array.from(dotsWrap.children);
 
     const setActive = (i) => {
       slides.forEach((s, si) => s.classList.toggle('is-active', si === i));
       dots.forEach((d, di) => d.classList.toggle('active', di === i));
     };
-    const go = (i, animate = true) => {
+
+    // Centering helpers
+    const centerPad = () => Math.max(0, (track.clientWidth - (slides[0]?.clientWidth || 0)) / 2);
+    const positionOf = (i) => {
+      const s = slides[i];
+      if (!s) return 0;
+      const left = s.offsetLeft;
+      return left - (track.clientWidth - s.clientWidth) / 2; // align center of slide to center of track
+    };
+    const go = (i, smooth = true) => {
       index = (i + slides.length) % slides.length;
-      const offset = -index * track.clientWidth;
-      track.style.transition = animate ? 'transform .35s ease' : 'none';
-      track.style.transform = `translateX(${offset}px)`;
+      track.scrollTo({ left: positionOf(index), behavior: smooth ? 'smooth' : 'auto' });
       setActive(index);
     };
-    btnPrev.addEventListener('click', () => go(index - 1));
-    btnNext.addEventListener('click', () => go(index + 1));
+    const updateIndexByScroll = () => {
+      const center = track.scrollLeft + track.clientWidth / 2;
+      let best = 0; let bestDist = Infinity;
+      slides.forEach((s, i) => {
+        const sCenter = s.offsetLeft + s.clientWidth / 2;
+        const dist = Math.abs(sCenter - center);
+        if (dist < bestDist) { best = i; bestDist = dist; }
+      });
+      if (best !== index) { index = best; setActive(index); }
+    };
+
+    // Initialize padding so first/last can be centered cleanly
+    const resize = () => {
+      const pad = centerPad();
+      track.style.paddingLeft = pad + 'px';
+      track.style.paddingRight = pad + 'px';
+      go(index, false);
+    };
     window.addEventListener('resize', resize);
     resize();
+    // start at slide 2 if vorhanden
+    if (initialIndex) go(initialIndex, false);
+
+    // Controls
+    btnPrev.addEventListener('click', () => go(index - 1));
+    btnNext.addEventListener('click', () => go(index + 1));
+    track.addEventListener('scroll', updateIndexByScroll, { passive: true });
 
     // Keyboard support
     document.addEventListener('keydown', (e) => {
@@ -152,10 +179,62 @@ document.addEventListener('DOMContentLoaded', () => {
       wrap.querySelectorAll('.star').forEach((s, i) => s.classList.toggle('active', i < value));
     };
     slides.forEach(slide => {
-      const rating = Number(slide.getAttribute('data-rating') || 0);
+      const rating = Math.min(5, Math.max(0, Number(slide.getAttribute('data-rating') || 0)));
       const wrap = slide.querySelector('.stars');
-      if (wrap && rating) setStars(wrap, rating);
+      if (wrap) {
+        wrap.querySelectorAll('.star').forEach((s, i) => {
+          s.textContent = '';
+          s.classList.toggle('active', i < rating);
+        });
+      }
     });
+  }
+
+  // Projects horizontal wheel -> horizontal scroll only
+  const projects = document.getElementById('projects-track');
+  const pPrev = document.getElementById('p-prev');
+  const pNext = document.getElementById('p-next');
+  if (projects) {
+    // wheel -> horizontal
+    projects.addEventListener('wheel', (e) => {
+      // convert vertical wheel to horizontal while hovering projects
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        projects.scrollLeft += e.deltaY;
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    const items = Array.from(projects.querySelectorAll('.project'));
+    let pIndex = 0;
+    let usePad = false;
+    const padProjects = () => {
+      const w = items[0]?.clientWidth || projects.clientWidth;
+      const style = getComputedStyle(projects);
+      const gap = parseFloat(style.gap || style.columnGap || '0') || 0;
+      const visible = Math.max(1, Math.floor((projects.clientWidth + gap) / (w + gap)));
+      // Wenn genug Karten vorhanden sind, um den View auszufüllen, kein Padding links/rechts
+      usePad = items.length < visible;
+      const pad = usePad ? Math.max(0, (projects.clientWidth - w) / 2) : 0;
+      projects.style.paddingLeft = pad + 'px';
+      projects.style.paddingRight = pad + 'px';
+    };
+    window.addEventListener('resize', padProjects);
+    padProjects();
+
+    const pGo = (i, smooth = true) => {
+      pIndex = Math.max(0, Math.min(items.length - 1, i));
+      const s = items[pIndex];
+      if (!s) return;
+      let left = s.offsetLeft - (projects.clientWidth - s.clientWidth) / 2;
+      if (!usePad) left = s.offsetLeft; // bei vollem View flush links starten
+      const maxLeft = projects.scrollWidth - projects.clientWidth;
+      left = Math.max(0, Math.min(maxLeft, left));
+      projects.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' });
+    };
+    pPrev?.addEventListener('click', () => pGo(pIndex - 1));
+    pNext?.addEventListener('click', () => pGo(pIndex + 1));
+    // start: wenn Padding aktiv (zu wenige Karten) -> zentriere erste, sonst flush links
+    if (usePad) pGo(0, false); else projects.scrollLeft = 0;
   }
 
   // FAQ accordion
