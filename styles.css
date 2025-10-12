@@ -8,6 +8,9 @@
   --primary: #6d5efc;
   --primary-600: #5a4be8;
   --primary-700: #4c3fd0;
+  /* Links */
+  --link: #8fb7ff;           /* helleres Blau */
+  --link-hover: #b8d4ff;     /* Hover-Blau */
   --border: rgba(255, 255, 255, 0.08);
   --ring: rgba(109, 94, 252, 0.45);
   --success: #22c55e;
@@ -118,6 +121,13 @@ p { color: var(--muted); margin: 0 0 12px; }
 
 /* Cards & Projects */
 .card { background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
+/* Legal pages: add spacing between stacked cards */
+.legal .card { margin-bottom: 16px; }
+.legal .card:last-child { margin-bottom: 0; }
+/* Legal pages: link styling */
+.legal a { color: var(--link); text-decoration-color: rgba(143,183,255,.6); text-underline-offset: 2px; }
+.legal a:hover { color: var(--link-hover); text-decoration-color: rgba(184,212,255,.8); }
+.legal a:visited { color: var(--link); }
 .project .project-media { border-radius: 12px; aspect-ratio: 16/10; background:
     radial-gradient(200px 140px at 80% 20%, rgba(34,211,238,.25), transparent 60%),
     radial-gradient(200px 200px at 20% 60%, rgba(109,94,252,.3), transparent 60%),
