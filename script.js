@@ -58,6 +58,31 @@ document.addEventListener('DOMContentLoaded', () => {
     note.style.color = type === 'error' ? '#ef4444' : '#aab4cf';
   }
 
+  // Build real stats in #stats and hide any placeholders via CSS
+  const statsWrap = document.querySelector('#stats .container');
+  if (statsWrap) {
+    const grid = document.createElement('div');
+    grid.className = 'grid three stats-grid';
+    grid.innerHTML = `
+      <article class="card stat">
+        <div class="value" data-count="76">76%</div>
+        <div class="label">der Smartphone-Nutzer besuchen nach einer lokalen Suche innerhalb von 24 Stunden ein Geschaeft.</div>
+        <div class="sub-value"><span class="chip">28% enden in einem Kauf</span></div>
+        <a class="source" href="https://www.thinkwithgoogle.com/marketing-strategies/search/mobile-near-me-searches/" target="_blank" rel="noopener">Quelle: Think with Google</a>
+      </article>
+      <article class="card stat">
+        <div class="value" data-count="53">53%</div>
+        <div class="label">mobiler Besuche brechen ab, wenn das Laden laenger als 3 Sekunden dauert.</div>
+        <a class="source" href="https://www.thinkwithgoogle.com/consumer-insights/consumer-trends/mobile-site-load-time-statistics/" target="_blank" rel="noopener">Quelle: Think with Google</a>
+      </article>
+      <article class="card stat">
+        <div class="value text">Design = Vertrauen</div>
+        <div class="label">Glaubwuerdigkeit wird stark durch Design/Look beeinflusst (Stanford-Richtlinien).</div>
+        <a class="source" href="https://credibility.stanford.edu/guidelines/index.html" target="_blank" rel="noopener">Quelle: Stanford Guidelines</a>
+      </article>`;
+    statsWrap.appendChild(grid);
+  }
+
   // Lottie in Hero
   try {
     if (window.lottie) {
@@ -122,21 +147,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === 'ArrowRight') go(index + 1);
     });
 
-    // Star rating (localStorage)
+    // Static star ratings from data attribute
     const setStars = (wrap, value) => {
       wrap.querySelectorAll('.star').forEach((s, i) => s.classList.toggle('active', i < value));
     };
     slides.forEach(slide => {
-      const id = slide.getAttribute('data-id');
+      const rating = Number(slide.getAttribute('data-rating') || 0);
       const wrap = slide.querySelector('.stars');
-      if (!wrap || !id) return;
-      const saved = Number(localStorage.getItem(`rating:${id}`) || 0);
-      if (saved) setStars(wrap, saved);
-      wrap.querySelectorAll('.star').forEach(btn => btn.addEventListener('click', () => {
-        const value = Number(btn.getAttribute('data-value')) || 0;
-        localStorage.setItem(`rating:${id}`, String(value));
-        setStars(wrap, value);
-      }));
+      if (wrap && rating) setStars(wrap, rating);
     });
   }
 
@@ -144,29 +162,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.faq-q').forEach(btn => {
     btn.addEventListener('click', () => {
       const expanded = btn.getAttribute('aria-expanded') === 'true';
-      const controls = btn.getAttribute('aria-controls');
       const item = btn.closest('.faq-item');
-      const panel = controls ? document.getElementById(controls) : null;
       btn.setAttribute('aria-expanded', String(!expanded));
-      if (!panel || !item) return;
-      const tidy = () => { panel.style.maxHeight = ''; panel.removeEventListener('transitionend', tidy); };
-      if (expanded) {
-        // close
-        panel.style.maxHeight = panel.scrollHeight + 'px';
-        requestAnimationFrame(() => {
-          panel.style.maxHeight = '0px';
-          item.classList.remove('open');
-          panel.addEventListener('transitionend', () => { panel.hidden = true; tidy(); }, { once: true });
-        });
-      } else {
-        // open
-        panel.hidden = false;
-        const h = panel.scrollHeight;
-        panel.style.maxHeight = '0px';
-        item.classList.add('open');
-        requestAnimationFrame(() => { panel.style.maxHeight = h + 'px'; });
-        panel.addEventListener('transitionend', tidy, { once: true });
-      }
+      if (item) item.classList.toggle('open', !expanded);
     });
   });
 
@@ -182,8 +180,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const y = e.clientY - rect.top;
         const px = (x / rect.width) * 2 - 1; // -1 .. 1
         const py = (y / rect.height) * 2 - 1;
-        const rx = (-py * 6).toFixed(2);
-        const ry = (px * 8).toFixed(2);
+        const rx = (-py * 10).toFixed(2);
+        const ry = (px * 14).toFixed(2);
         el.style.setProperty('--rx', rx + 'deg');
         el.style.setProperty('--ry', ry + 'deg');
         el.style.setProperty('--mx', (x / rect.width * 100).toFixed(2) + '%');
@@ -206,6 +204,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const y = e.clientY - rect.top;
       el.style.setProperty('--mx', (x / rect.width * 100).toFixed(2) + '%');
       el.style.setProperty('--my', (y / rect.height * 100).toFixed(2) + '%');
+    });
+  });
+
+  // Pointer for process steps glow
+  document.querySelectorAll('#process .step').forEach(el => {
+    el.addEventListener('mousemove', (e) => {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100).toFixed(2) + '%');
+      el.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100).toFixed(2) + '%');
     });
   });
 
