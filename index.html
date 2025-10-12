@@ -1,11 +1,274 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eric Schuck – Websites, die verkaufen</title>
+  <meta name="description" content="Ich baue moderne, performante Websites, die Kunden überzeugen. Webentwicklung & Design für Unternehmen, Selbstständige und Vereine." />
+  <meta name="theme-color" content="#0b1020" />
+
+  <!-- Open Graph / Social -->
+  <meta property="og:title" content="Websites, die verkaufen – Eric Schuck" />
+  <meta property="og:description" content="Moderne, performante Websites mit Fokus auf Klarheit, Design und messbaren Erfolg." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="/" />
+  <meta property="og:image" content="assets/favicon.svg" />
+
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="script.js"></script>
 </head>
 <body>
-  
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#hero" class="brand" aria-label="Startseite">
+        <span class="brand-mark" aria-hidden="true">ES</span>
+        <span class="brand-text">Eric Schuck</span>
+      </a>
+      <button class="nav-toggle" aria-label="Navigation öffnen" aria-expanded="false">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+      <nav class="main-nav" aria-label="Hauptnavigation">
+        <a href="#services">Leistungen</a>
+        <a href="#portfolio">Projekte</a>
+        <a href="#about">Über mich</a>
+        <a href="#process">Ablauf</a>
+        <a href="#contact">Kontakt</a>
+        <a class="btn btn-primary cta" href="#contact">Projekt anfragen</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section id="hero" class="section hero">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="container hero-inner">
+        <div class="hero-content reveal">
+          <h1>Ich baue Websites, die verkaufen.</h1>
+          <p class="subtitle">Ich helfe Unternehmern, Selbstständigen und Vereinen mit modernen, performanten Websites, die Kunden überzeugen.</p>
+          <div class="actions">
+            <a href="#contact" class="btn btn-primary">Projekt anfragen</a>
+            <a href="#portfolio" class="btn btn-ghost">Meine Projekte ansehen</a>
+          </div>
+        </div>
+        <div class="hero-visual reveal" aria-hidden="true">
+          <div class="mockup">
+            <div class="screen"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Über mich -->
+    <section id="about" class="section">
+      <div class="container grid two">
+        <div class="about-media reveal">
+          <div class="avatar" aria-label="Foto von Eric Schuck" title="Eric Schuck">
+            <span>ES</span>
+          </div>
+        </div>
+        <div class="about-content reveal">
+          <h2>Hey, ich bin Eric Schuck</h2>
+          <p>Webentwickler & Designer aus Unterfranken. Ich verbinde Technik und Ästhetik, um digitale Auftritte zu schaffen, die Menschen erreichen – schnell, klar und überzeugend.</p>
+          <ul class="bullets">
+            <li>Junge, kreative Herangehensweise</li>
+            <li>Moderne Designs mit Fokus auf Conversion</li>
+            <li>SEO-Verständnis & Performance-Optimierung</li>
+            <li>Sauberer Code, langfristig wartbar</li>
+          </ul>
+          <div class="tools">
+            <span class="tool">HTML</span>
+            <span class="tool">CSS</span>
+            <span class="tool">JavaScript</span>
+            <span class="tool">React</span>
+            <span class="tool">WordPress</span>
+            <span class="tool">Figma</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Projekte / Portfolio -->
+    <section id="portfolio" class="section">
+      <div class="container">
+        <h2 class="section-title reveal">Ausgewählte Projekte</h2>
+        <div class="grid three">
+          <article class="card project reveal">
+            <div class="project-media"></div>
+            <div class="project-body">
+              <div class="tags"><span>Business</span><span>Landingpage</span></div>
+              <h3>Café am Main</h3>
+              <p>Online-Präsenz mit Fokus auf Atmosphäre, Öffnungszeiten und Reservierung. Umsetzung: Design, Responsive Layout, SEO Basics.</p>
+              <div class="card-actions">
+                <a href="#" class="btn btn-ghost">Live ansehen</a>
+              </div>
+            </div>
+          </article>
+          <article class="card project reveal">
+            <div class="project-media"></div>
+            <div class="project-body">
+              <div class="tags"><span>Portfolio</span><span>SEO</span></div>
+              <h3>Fotograf Müller</h3>
+              <p>Portfolio-Website mit Lightbox, schneller Bildauslieferung und einfachem CMS für neue Galerien.</p>
+              <div class="card-actions">
+                <a href="#" class="btn btn-ghost">Live ansehen</a>
+              </div>
+            </div>
+          </article>
+          <article class="card project reveal">
+            <div class="project-media"></div>
+            <div class="project-body">
+              <div class="tags"><span>Verein</span><span>Infos</span></div>
+              <h3>Sportverein 1920 e.V.</h3>
+              <p>Strukturierte Inhalte, Termine und Neuigkeiten. Schnelle Navigation und einfache Pflege für das Team.</p>
+              <div class="card-actions">
+                <a href="#" class="btn btn-ghost">Live ansehen</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Leistungen / Pakete -->
+    <section id="services" class="section alt">
+      <div class="container">
+        <h2 class="section-title reveal">Leistungen & Pakete</h2>
+        <div class="grid three">
+          <article class="card price reveal">
+            <h3>Starter</h3>
+            <p class="desc">1-Page Website, modernes Design, Kontaktformular</p>
+            <p class="price">ab 299 €</p>
+            <ul class="features">
+              <li>Responsives Layout</li>
+              <li>Schnelle Ladezeiten</li>
+              <li>Basis-SEO</li>
+            </ul>
+            <a href="#contact" class="btn btn-primary">Anfragen</a>
+          </article>
+          <article class="card price highlight reveal">
+            <h3>Business</h3>
+            <p class="desc">bis 5 Seiten, SEO-Optimierung, Google-Eintrag</p>
+            <p class="price">ab 599 €</p>
+            <ul class="features">
+              <li>Individuelles Design</li>
+              <li>Erweiterte SEO</li>
+              <li>Analytics Setup</li>
+            </ul>
+            <a href="#contact" class="btn btn-primary">Anfragen</a>
+          </article>
+          <article class="card price reveal">
+            <h3>Premium</h3>
+            <p class="desc">Individuelles Design, Blog, Wartung, Hosting</p>
+            <p class="price">ab 999 €</p>
+            <ul class="features">
+              <li>CMS/Blog</li>
+              <li>Wartungspaket</li>
+              <li>Technische SEO</li>
+            </ul>
+            <a href="#contact" class="btn btn-primary">Anfragen</a>
+          </article>
+        </div>
+        <p class="note reveal">Ich entwickle Websites mit Fokus auf Klarheit, Performance und messbaren Erfolg.</p>
+      </div>
+    </section>
+
+    <!-- Prozess / Ablauf -->
+    <section id="process" class="section">
+      <div class="container">
+        <h2 class="section-title reveal">So läuft’s</h2>
+        <div class="process">
+          <div class="step reveal">
+            <div class="icon" aria-hidden="true">💬</div>
+            <h3>Kontaktaufnahme</h3>
+            <p>Wir sprechen über dein Projekt und Ziele.</p>
+          </div>
+          <div class="step reveal">
+            <div class="icon" aria-hidden="true">🧭</div>
+            <h3>Design & Konzept</h3>
+            <p>Erste Entwürfe, Struktur und Inhalte.</p>
+          </div>
+          <div class="step reveal">
+            <div class="icon" aria-hidden="true">🛠️</div>
+            <h3>Umsetzung</h3>
+            <p>Sauber, responsive & SEO-optimiert.</p>
+          </div>
+          <div class="step reveal">
+            <div class="icon" aria-hidden="true">🚀</div>
+            <h3>Launch & Betreuung</h3>
+            <p>Go-live und Unterstützung danach.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Kundenstimmen / Testimonials -->
+    <section id="testimonials" class="section alt">
+      <div class="container">
+        <h2 class="section-title reveal">Kundenstimmen</h2>
+        <div class="grid two">
+          <blockquote class="card quote reveal">
+            <p>„Eric hat meine Website in Rekordzeit umgesetzt – modern, schnell und genau nach meinen Vorstellungen.“</p>
+            <footer>– Anna, Café am Main</footer>
+          </blockquote>
+          <div class="card quote muted reveal">
+            <p>Bald verfügbar – aktuell in Arbeit.</p>
+            <footer>Transparenz statt leere Versprechen</footer>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Kontakt / CTA -->
+    <section id="contact" class="section">
+      <div class="container">
+        <div class="contact-head reveal">
+          <h2 class="section-title">Bereit für deine neue Website?</h2>
+          <p>Lass uns starten. Schreib mir kurz, worum es geht – ich melde mich in der Regel am selben Tag.</p>
+        </div>
+        <form id="contact-form" class="card form reveal" novalidate>
+          <div class="field">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" placeholder="Max Mustermann" required />
+          </div>
+          <div class="field">
+            <label for="email">E-Mail</label>
+            <input id="email" name="email" type="email" placeholder="max@beispiel.de" required />
+          </div>
+          <div class="field">
+            <label for="message">Nachricht</label>
+            <textarea id="message" name="message" rows="5" placeholder="Kurze Beschreibung deines Projekts..." required></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Projekt anfragen</button>
+            <a class="btn btn-ghost" id="whatsapp" href="https://wa.me/4915123456789" target="_blank" rel="noopener">WhatsApp</a>
+          </div>
+          <p class="form-note" id="form-note" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="foot-brand">
+        <span class="brand-mark" aria-hidden="true">ES</span>
+        <span>Eric Schuck</span>
+      </div>
+      <div class="foot-links">
+        <a href="https://instagram.com/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://linkedin.com/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+      <div class="foot-meta">
+        <a href="#" title="Impressum folgt">Impressum</a>
+        <a href="#" title="Datenschutz folgt">Datenschutz</a>
+        <span>© <span id="year"></span> – Alle Rechte vorbehalten.</span>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
