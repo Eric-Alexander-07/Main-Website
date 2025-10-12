@@ -101,6 +101,23 @@ p { color: var(--muted); margin: 0 0 12px; }
 .mockup .screen::after { content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.06) 45%, transparent 60%); transform: translateX(-100%); animation: shimmer 4s ease-in-out infinite; }
 @keyframes shimmer { 50% { transform: translateX(100%);} }
 
+/* Animated wireframe inside hero mockup */
+.wireframe { position: absolute; inset: 8% 6%; display: grid; grid-template-rows: auto 1fr; gap: 8px; }
+.wf-topbar { height: 20px; border: 1px solid var(--border); border-radius: 6px; background: rgba(255,255,255,.04); display: grid; grid-template-columns: 100px 1fr 70px; gap: 6px; align-items: center; padding: 4px 6px; }
+.wf-topbar .wf-logo { height: 10px; border-radius: 4px; background: rgba(255,255,255,.08); }
+.wf-topbar .wf-menu { justify-self: end; width: 60px; height: 8px; border-radius: 4px; background: rgba(255,255,255,.08); }
+.wf-body { border: 1px solid var(--border); border-radius: 8px; background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)); padding: 8px; display: grid; grid-template-columns: 140px 1fr; gap: 8px; overflow: hidden; }
+.wf-sidebar { display: grid; gap: 6px; }
+.wf-line { height: 10px; border-radius: 4px; background: rgba(255,255,255,.06); position: relative; overflow: hidden; }
+.wf-line::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,.12) 50%, transparent 100%); transform: translateX(-100%); animation: wf-shimmer 3.5s ease-in-out infinite; }
+.wf-main { display: grid; grid-template-rows: auto 1fr; gap: 8px; overflow: hidden; }
+.wf-hero { height: 64px; border-radius: 8px; background: rgba(255,255,255,.06); position: relative; overflow: hidden; }
+.wf-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,.12) 50%, transparent 100%); transform: translateX(-100%); animation: wf-shimmer 3.5s ease-in-out infinite; }
+.wf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: start; }
+.wf-card { height: 42px; border-radius: 8px; background: rgba(255,255,255,.05); position: relative; overflow: hidden; }
+.wf-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,.12) 50%, transparent 100%); transform: translateX(-100%); animation: wf-shimmer 3.5s ease-in-out infinite; }
+@keyframes wf-shimmer { 50% { transform: translateX(100%);} }
+
 /* About */
 .grid { display: grid; gap: 22px; }
 .grid.two { grid-template-columns: repeat(2, minmax(0,1fr)); }
@@ -195,7 +212,7 @@ p { color: var(--muted); margin: 0 0 12px; }
 #testimonials .carousel { padding: 16px 56px; background: rgba(0,0,0,.18); border: 1px solid var(--border); border-radius: 16px; }
 .carousel.centered { text-align: center; }
 #testimonials .carousel { overflow: hidden; }
-.carousel-track { display: flex; gap: 14px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.carousel-track { display: flex; gap: 14px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-snap-stop: always; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .carousel-track::-webkit-scrollbar { display: none; }
 .slide { flex: 0 0 min(640px, 80%); width: min(640px, 80%); scroll-snap-align: center; transition: transform .25s ease, opacity .25s ease; opacity: .9; transform: scale(.97); }
 .slide.is-active { transform: scale(1); opacity: 1; }
@@ -280,9 +297,9 @@ input:focus, textarea:focus { border-color: var(--ring); box-shadow: 0 0 0 4px r
   .hero { padding: 90px 0 60px; }
   .brand-logo { width: 30px; height: 30px; }
   /* Testimonials: make each slide full width, no preview */
-  #testimonials .carousel { padding: 12px 16px; }
-  .carousel-track { gap: 0; }
-  .slide { flex: 0 0 100%; width: 100%; scroll-snap-align: start; }
+  #testimonials .carousel { padding: 12px 0; }
+  .carousel-track { gap: 12px; padding: 0 16px; scroll-snap-type: x mandatory; scroll-snap-stop: always; }
+  .slide { flex: 0 0 calc(100% - 48px); width: calc(100% - 48px); scroll-snap-align: center; }
   #testimonials .quote { width: 100%; max-width: none; min-height: unset; padding: 18px; }
   /* Footer stacking on small screens */
   .footer-inner { grid-template-columns: 1fr; justify-items: start; gap: 8px; }
