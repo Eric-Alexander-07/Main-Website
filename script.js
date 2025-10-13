@@ -137,12 +137,30 @@ document.addEventListener('DOMContentLoaded', () => {
       const left = s.offsetLeft;
       return left - (track.clientWidth - s.clientWidth) / 2; // align center of slide to center of track
     };
+    let isProgrammaticScroll = false;
+    let programmaticTimer = 0;
+    const scheduleRelease = () => {
+      clearTimeout(programmaticTimer);
+      programmaticTimer = window.setTimeout(() => {
+        isProgrammaticScroll = false;
+        setActive(index);
+      }, 360);
+    };
     const go = (i, smooth = true) => {
       index = (i + slides.length) % slides.length;
-      track.scrollTo({ left: positionOf(index), behavior: smooth ? 'smooth' : 'auto' });
       setActive(index);
+      if (!smooth) {
+        track.scrollTo({ left: positionOf(index), behavior: 'auto' });
+        clearTimeout(programmaticTimer);
+        isProgrammaticScroll = false;
+        return;
+      }
+      isProgrammaticScroll = true;
+      track.scrollTo({ left: positionOf(index), behavior: 'smooth' });
+      scheduleRelease();
     };
     const updateIndexByScroll = () => {
+      if (isProgrammaticScroll) return;
       const center = track.scrollLeft + track.clientWidth / 2;
       let best = 0; let bestDist = Infinity;
       slides.forEach((s, i) => {
@@ -168,7 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Controls
     btnPrev.addEventListener('click', () => go(index - 1));
     btnNext.addEventListener('click', () => go(index + 1));
-    track.addEventListener('scroll', updateIndexByScroll, { passive: true });
+    track.addEventListener('scroll', () => {
+      updateIndexByScroll();
+    }, { passive: true });
 
     // Keyboard support
     document.addEventListener('keydown', (e) => {
@@ -240,7 +260,24 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Pricing cards: animated expand/collapse of features, per-card independent
-  const priceCards = document.querySelectorAll('.card.price');
+  const priceCards = Array.from(document.querySelectorAll('.card.price'));
+  const syncExpandedHeights = (() => {
+    let rafId = null;
+    const raf = window.requestAnimationFrame ? window.requestAnimationFrame.bind(window) : (fn) => setTimeout(fn, 16);
+    return () => {
+      if (rafId !== null) return;
+      rafId = raf(() => {
+        rafId = null;
+        priceCards.forEach(card => { card.style.minHeight = ''; });
+        const expanded = priceCards.filter(card => !card.classList.contains('collapsed'));
+        if (expanded.length <= 1) return;
+        const maxHeight = Math.max(...expanded.map(card => card.getBoundingClientRect().height));
+        const targetHeight = Math.ceil(maxHeight);
+        expanded.forEach(card => { card.style.minHeight = targetHeight + 'px'; });
+      });
+    };
+  })();
+
   priceCards.forEach(card => {
     const list = card.querySelector('.features');
     if (!list) return;
@@ -251,17 +288,37 @@ document.addEventListener('DOMContentLoaded', () => {
     card.classList.add('collapsed');
 
     // Helper: animate height from current to target
-    const animateHeight = (el, targetHeight) => {
+    const animateHeight = (el, targetHeight, done) => {
       const from = el.getBoundingClientRect().height;
       el.style.height = from + 'px';
       // force reflow
       void el.offsetHeight;
       el.style.height = targetHeight + 'px';
-      const onEnd = () => {
+      const cleanup = () => {
         el.style.height = '';
+        if (typeof done === 'function') done();
+      };
+      let fallbackId;
+      const onEnd = (event) => {
+        if (event.target !== el || event.propertyName !== 'height') return;
         el.removeEventListener('transitionend', onEnd);
+        if (fallbackId) clearTimeout(fallbackId);
+        cleanup();
       };
       el.addEventListener('transitionend', onEnd);
+      const style = getComputedStyle(el);
+      const parseTime = (value) => {
+        const num = parseFloat(value);
+        if (Number.isNaN(num)) return 0;
+        return value.trim().toLowerCase().endsWith('ms') ? num : num * 1000;
+      };
+      const duration = (style.transitionDuration || '').split(',')[0] || '0s';
+      const delay = (style.transitionDelay || '').split(',')[0] || '0s';
+      const total = Math.max(30, parseTime(duration) + parseTime(delay) + 30);
+      fallbackId = setTimeout(() => {
+        el.removeEventListener('transitionend', onEnd);
+        cleanup();
+      }, total);
     };
 
     const btn = document.createElement('button');
@@ -282,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // next frame: switch to expanded + animate
         requestAnimationFrame(() => {
           card.classList.remove('collapsed');
-          animateHeight(list, hExpanded);
+          animateHeight(list, hExpanded, syncExpandedHeights);
         });
         btn.textContent = 'Weniger anzeigen';
         btn.setAttribute('aria-expanded', 'true');
@@ -296,20 +353,29 @@ document.addEventListener('DOMContentLoaded', () => {
         list.style.height = hExpanded + 'px';
         requestAnimationFrame(() => {
           card.classList.add('collapsed');
-          animateHeight(list, hCollapsed);
+          animateHeight(list, hCollapsed, syncExpandedHeights);
         });
         btn.textContent = 'Alle Vorteile anzeigen';
         btn.setAttribute('aria-expanded', 'false');
       }
     });
     // Insert after the features list but before primary CTA if present
-    const cta = card.querySelector('.btn.btn-primary');
-    if (cta && cta.parentElement === card) {
-      card.insertBefore(btn, cta);
+    const actions = card.querySelector('.card-actions');
+    if (actions) {
+      actions.insertBefore(btn, actions.firstElementChild || null);
     } else {
-      list.insertAdjacentElement('afterend', btn);
+      const cta = card.querySelector('.btn.btn-primary');
+      if (cta && cta.parentElement) {
+        cta.parentElement.insertBefore(btn, cta);
+      } else {
+        list.insertAdjacentElement('afterend', btn);
+      }
     }
   });
+  if (priceCards.length) {
+    requestAnimationFrame(syncExpandedHeights);
+    window.addEventListener('resize', syncExpandedHeights);
+  }
 
   // FAQ accordion
   document.querySelectorAll('.faq-q').forEach(btn => {
