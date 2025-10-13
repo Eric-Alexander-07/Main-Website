@@ -243,13 +243,7 @@ p { color: var(--muted); margin: 0 0 12px; }
   font-size: 0.96rem;
   line-height: 1.45;
 }
-.card.price .features li::before {
-  content: "\2713";
-  position: absolute;
-  left: 2px;
-  color: var(--success);
-  font-weight: 700;
-}
+.card.price .features li::before { content: "\2713"; position: absolute; left: 2px; color: var(--success); font-weight: 700; }
 .card.price .card-actions { margin-top: auto; display: grid; gap: 10px; }
 .card.price .card-actions .btn { width: 100%; }
 .card.price.highlight { border-color: rgba(109,94,252,.5); box-shadow: 0 12px 60px rgba(109,94,252,.25); }
@@ -345,7 +339,7 @@ input:focus, textarea:focus { border-color: var(--ring); box-shadow: 0 0 0 4px r
 .form-note { min-height: 20px; color: var(--muted); }
 
 /* Pricing: collapse/expand features */
-.card.price.collapsed .features li:nth-child(n+4) { display: none; }
+.card.price.collapsed:not(.is-transitioning) .features li:nth-child(n+4) { display: none; }
 .card.price .toggle-features { height: 38px; padding: 0 14px; margin-top: 0; font-weight: 600; }
 
 /* Footer */

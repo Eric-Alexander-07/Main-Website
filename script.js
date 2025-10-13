@@ -287,6 +287,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start collapsed
     card.classList.add('collapsed');
 
+    const computeCollapsedHeight = () => {
+      const style = getComputedStyle(list);
+      const gap = parseFloat(style.rowGap || style.gap || '0') || 0;
+      const padTop = parseFloat(style.paddingTop || style.paddingBlockStart || '0') || 0;
+      const padBottom = parseFloat(style.paddingBottom || style.paddingBlockEnd || '0') || 0;
+      const visibleCount = Math.min(3, items.length);
+      let total = padTop + padBottom;
+      for (let i = 0; i < visibleCount; i += 1) {
+        total += items[i].offsetHeight;
+        if (i < visibleCount - 1) total += gap;
+      }
+      return total;
+    };
+
     // Helper: animate height from current to target
     const animateHeight = (el, targetHeight, done) => {
       const from = el.getBoundingClientRect().height;
@@ -328,9 +342,10 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.textContent = 'Alle Vorteile anzeigen';
     btn.addEventListener('click', () => {
       const currentlyCollapsed = card.classList.contains('collapsed');
+      card.classList.add('is-transitioning');
       if (currentlyCollapsed) {
         // expand: measure target height with all items visible
-        const hCollapsed = list.getBoundingClientRect().height;
+        const hCollapsed = computeCollapsedHeight();
         card.classList.remove('collapsed');
         const hExpanded = list.scrollHeight;
         // revert DOM state for animation start
@@ -339,21 +354,26 @@ document.addEventListener('DOMContentLoaded', () => {
         // next frame: switch to expanded + animate
         requestAnimationFrame(() => {
           card.classList.remove('collapsed');
-          animateHeight(list, hExpanded, syncExpandedHeights);
+          animateHeight(list, hExpanded, () => {
+            syncExpandedHeights();
+            card.classList.remove('is-transitioning');
+          });
         });
         btn.textContent = 'Weniger anzeigen';
         btn.setAttribute('aria-expanded', 'true');
       } else {
         // collapse: measure current and target collapsed height
         const hExpanded = list.getBoundingClientRect().height;
-        // compute collapsed height by temporarily applying class
-        card.classList.add('collapsed');
-        const hCollapsed = list.scrollHeight; // now reflects the shorter content
-        card.classList.remove('collapsed');
+        const hCollapsed = computeCollapsedHeight();
         list.style.height = hExpanded + 'px';
+        card.style.minHeight = '';
         requestAnimationFrame(() => {
           card.classList.add('collapsed');
-          animateHeight(list, hCollapsed, syncExpandedHeights);
+          animateHeight(list, hCollapsed, () => {
+            card.style.minHeight = '';
+            syncExpandedHeights();
+            card.classList.remove('is-transitioning');
+          });
         });
         btn.textContent = 'Alle Vorteile anzeigen';
         btn.setAttribute('aria-expanded', 'false');
