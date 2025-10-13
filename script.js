@@ -261,21 +261,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Pricing cards: animated expand/collapse of features, per-card independent
   const priceCards = Array.from(document.querySelectorAll('.card.price'));
-  const syncExpandedHeights = (() => {
+  const scheduleEqualHeights = (() => {
     let rafId = null;
     const raf = window.requestAnimationFrame ? window.requestAnimationFrame.bind(window) : (fn) => setTimeout(fn, 16);
-    return () => {
-      if (rafId !== null) return;
+    const apply = () => {
+      const readyCards = priceCards.filter(card => !card.classList.contains('is-transitioning'));
+      readyCards.forEach(card => { card.style.minHeight = ''; });
+
+      const collapsed = readyCards.filter(card => card.classList.contains('collapsed'));
+      if (collapsed.length) {
+        const target = Math.ceil(Math.max(...collapsed.map(card => card.getBoundingClientRect().height)));
+        collapsed.forEach(card => { card.style.minHeight = target + 'px'; });
+      }
+
+      const expanded = readyCards.filter(card => !card.classList.contains('collapsed'));
+      if (expanded.length > 1) {
+        const target = Math.ceil(Math.max(...expanded.map(card => card.getBoundingClientRect().height)));
+        expanded.forEach(card => { card.style.minHeight = target + 'px'; });
+      }
+    };
+    const schedule = () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
       rafId = raf(() => {
         rafId = null;
-        priceCards.forEach(card => { card.style.minHeight = ''; });
-        const expanded = priceCards.filter(card => !card.classList.contains('collapsed'));
-        if (expanded.length <= 1) return;
-        const maxHeight = Math.max(...expanded.map(card => card.getBoundingClientRect().height));
-        const targetHeight = Math.ceil(maxHeight);
-        expanded.forEach(card => { card.style.minHeight = targetHeight + 'px'; });
+        raf(apply);
       });
     };
+    return schedule;
   })();
 
   priceCards.forEach(card => {
@@ -351,12 +363,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // revert DOM state for animation start
         card.classList.add('collapsed');
         list.style.height = hCollapsed + 'px';
+        card.style.minHeight = '';
         // next frame: switch to expanded + animate
         requestAnimationFrame(() => {
           card.classList.remove('collapsed');
           animateHeight(list, hExpanded, () => {
-            syncExpandedHeights();
             card.classList.remove('is-transitioning');
+            scheduleEqualHeights();
           });
         });
         btn.textContent = 'Weniger anzeigen';
@@ -371,8 +384,8 @@ document.addEventListener('DOMContentLoaded', () => {
           card.classList.add('collapsed');
           animateHeight(list, hCollapsed, () => {
             card.style.minHeight = '';
-            syncExpandedHeights();
             card.classList.remove('is-transitioning');
+            scheduleEqualHeights();
           });
         });
         btn.textContent = 'Alle Vorteile anzeigen';
@@ -393,8 +406,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   if (priceCards.length) {
-    requestAnimationFrame(syncExpandedHeights);
-    window.addEventListener('resize', syncExpandedHeights);
+    requestAnimationFrame(scheduleEqualHeights);
+    window.addEventListener('resize', scheduleEqualHeights);
   }
 
   // FAQ accordion
