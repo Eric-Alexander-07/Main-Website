@@ -425,25 +425,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const canHover = window.matchMedia('(hover: hover)').matches;
   if (canHover && tilts.length) {
     tilts.forEach(el => {
-      el.style.position = 'relative';
       const onMove = (e) => {
         const rect = el.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        const px = (x / rect.width) * 2 - 1; // -1 .. 1
+        const px = (x / rect.width) * 2 - 1;
         const py = (y / rect.height) * 2 - 1;
-        const rx = (-py * 10).toFixed(2);
-        const ry = (px * 14).toFixed(2);
+        const rx = (-py * 14).toFixed(2);
+        const ry = (px * 18).toFixed(2);
+        const dist = Math.min(1, Math.sqrt(px * px + py * py));
+        const scale = 1.02 + dist * 0.03;
         el.style.setProperty('--rx', rx + 'deg');
         el.style.setProperty('--ry', ry + 'deg');
         el.style.setProperty('--mx', (x / rect.width * 100).toFixed(2) + '%');
         el.style.setProperty('--my', (y / rect.height * 100).toFixed(2) + '%');
+        el.style.setProperty('--tilt-scale', scale.toFixed(3));
       };
       const reset = () => {
         el.style.setProperty('--rx', '0deg');
         el.style.setProperty('--ry', '0deg');
+        el.style.setProperty('--tilt-scale', '1');
+        el.style.removeProperty('--mx');
+        el.style.removeProperty('--my');
       };
       el.addEventListener('mousemove', onMove);
+      el.addEventListener('mouseenter', onMove);
       el.addEventListener('mouseleave', reset);
     });
   }
@@ -458,6 +464,25 @@ document.addEventListener('DOMContentLoaded', () => {
       el.style.setProperty('--my', (y / rect.height * 100).toFixed(2) + '%');
     });
   });
+
+  if (canHover) {
+    document.querySelectorAll('#stats .stat').forEach(el => {
+      const setPos = (e) => {
+        const rect = el.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        el.style.setProperty('--mx', (x / rect.width * 100).toFixed(2) + '%');
+        el.style.setProperty('--my', (y / rect.height * 100).toFixed(2) + '%');
+      };
+      const reset = () => {
+        el.style.removeProperty('--mx');
+        el.style.removeProperty('--my');
+      };
+      el.addEventListener('mousemove', setPos);
+      el.addEventListener('mouseenter', setPos);
+      el.addEventListener('mouseleave', reset);
+    });
+  }
 
   // Pointer for process steps glow
   document.querySelectorAll('#process .step').forEach(el => {
