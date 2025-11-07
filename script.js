@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </article>
       <article class="card stat">
         <div class="value" data-count="53">53%</div>
-        <div class="label">mobiler Besuche brechen ab, wenn das Laden laenger als 3 Sekunden dauert.</div>
+        <div class="label">mobiler Besucher brechen ab, wenn das Laden länger als 3 Sekunden dauert.</div>
         <a class="source" href="https://www.thinkwithgoogle.com/consumer-insights/consumer-trends/mobile-site-load-time-statistics/" target="_blank" rel="noopener">Quelle: Think with Google</a>
       </article>
       <article class="card stat">
