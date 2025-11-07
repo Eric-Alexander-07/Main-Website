@@ -42,13 +42,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const msg = (fd.get('message') || '').toString().trim();
 
     if (!name || !email || !msg) {
-      setNote('Bitte fülle alle Felder aus.', 'error');
+      setNote('Bitte fÃ¼lle alle Felder aus.', 'error');
       return;
     }
     const subject = encodeURIComponent(`Projektanfrage von ${name}`);
     const body = encodeURIComponent(`Name: ${name}\nE-Mail: ${email}\n\nNachricht:\n${msg}`);
     const mailto = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
-    setNote('Öffne E-Mail-Programm...', 'ok');
+    setNote('Ã–ffne E-Mail-Programm...', 'ok');
     window.location.href = mailto;
   });
 
@@ -100,164 +100,53 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   } catch {}
 
-  // Testimonials: scroll-snap focus + dots
-  const track = document.getElementById('testimonial-track');
-  const dotsWrap = document.getElementById('testimonial-dots');
-  const btnPrev = document.getElementById('t-prev');
-  const btnNext = document.getElementById('t-next');
-  if (track && dotsWrap && btnPrev && btnNext) {
-    const slides = Array.from(track.querySelectorAll('.slide'));
-    // On mobile, start at the first slide; on larger screens center-start at 2nd if available
-    const isMobile = window.matchMedia('(max-width: 720px)').matches;
-    const initialIndex = isMobile ? 0 : (slides.length > 1 ? 1 : 0);
-    let index = initialIndex;
-
-    const createDots = () => {
+  const testimonialSlider = initSlider({
+    trackSelector: '#testimonial-track',
+    prevSelector: '#t-prev',
+    nextSelector: '#t-next',
+    breakpoints: [
+      { width: 0, perView: 1 },
+      { width: 1080, perView: 2 }
+    ]
+  });
+  if (testimonialSlider) {
+    const dotsWrap = document.getElementById('testimonial-dots');
+    let dots = [];
+    if (dotsWrap) {
       dotsWrap.innerHTML = '';
-      slides.forEach((_, i) => {
-        const d = document.createElement('span');
-        d.className = 'dot' + (i === initialIndex ? ' active' : '');
-        d.addEventListener('click', () => go(i));
-        dotsWrap.appendChild(d);
+      dots = testimonialSlider.slides.map((_, i) => {
+        const dot = document.createElement('span');
+        dot.className = 'dot';
+        dot.addEventListener('click', () => testimonialSlider.goTo(i));
+        dotsWrap.appendChild(dot);
+        return dot;
       });
-    };
-    createDots();
-    const dots = Array.from(dotsWrap.children);
-
-    const setActive = (i) => {
-      slides.forEach((s, si) => s.classList.toggle('is-active', si === i));
-      dots.forEach((d, di) => d.classList.toggle('active', di === i));
-    };
-
-    // Centering helpers
-    const centerPad = () => Math.max(0, (track.clientWidth - (slides[0]?.clientWidth || 0)) / 2);
-    const positionOf = (i) => {
-      const s = slides[i];
-      if (!s) return 0;
-      const left = s.offsetLeft;
-      return left - (track.clientWidth - s.clientWidth) / 2; // align center of slide to center of track
-    };
-    let isProgrammaticScroll = false;
-    let programmaticTimer = 0;
-    const scheduleRelease = () => {
-      clearTimeout(programmaticTimer);
-      programmaticTimer = window.setTimeout(() => {
-        isProgrammaticScroll = false;
-        setActive(index);
-      }, 360);
-    };
-    const go = (i, smooth = true) => {
-      index = (i + slides.length) % slides.length;
-      setActive(index);
-      if (!smooth) {
-        track.scrollTo({ left: positionOf(index), behavior: 'auto' });
-        clearTimeout(programmaticTimer);
-        isProgrammaticScroll = false;
-        return;
-      }
-      isProgrammaticScroll = true;
-      track.scrollTo({ left: positionOf(index), behavior: 'smooth' });
-      scheduleRelease();
-    };
-    const updateIndexByScroll = () => {
-      if (isProgrammaticScroll) return;
-      const center = track.scrollLeft + track.clientWidth / 2;
-      let best = 0; let bestDist = Infinity;
-      slides.forEach((s, i) => {
-        const sCenter = s.offsetLeft + s.clientWidth / 2;
-        const dist = Math.abs(sCenter - center);
-        if (dist < bestDist) { best = i; bestDist = dist; }
-      });
-      if (best !== index) { index = best; setActive(index); }
-    };
-
-    // Initialize padding so first/last can be centered cleanly
-    const resize = () => {
-      const pad = centerPad();
-      track.style.paddingLeft = pad + 'px';
-      track.style.paddingRight = pad + 'px';
-      go(index, false);
-    };
-    window.addEventListener('resize', resize);
-    resize();
-    // start at slide 2 if vorhanden
-    if (initialIndex) go(initialIndex, false);
-
-    // Controls
-    btnPrev.addEventListener('click', () => go(index - 1));
-    btnNext.addEventListener('click', () => go(index + 1));
-    track.addEventListener('scroll', () => {
-      updateIndexByScroll();
-    }, { passive: true });
-
-    // Keyboard support
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft') go(index - 1);
-      if (e.key === 'ArrowRight') go(index + 1);
+    }
+    testimonialSlider.onChange(({ index }) => {
+      dots.forEach((dot, di) => dot.classList.toggle('active', di === index));
+      testimonialSlider.slides.forEach((slide, si) => slide.classList.toggle('is-active', si === index));
     });
-
-    // Static star ratings from data attribute
-    const setStars = (wrap, value) => {
-      wrap.querySelectorAll('.star').forEach((s, i) => s.classList.toggle('active', i < value));
-    };
-    slides.forEach(slide => {
+    testimonialSlider.slides.forEach(slide => {
       const rating = Math.min(5, Math.max(0, Number(slide.getAttribute('data-rating') || 0)));
-      const wrap = slide.querySelector('.stars');
-      if (wrap) {
-        wrap.querySelectorAll('.star').forEach((s, i) => {
-          s.textContent = '';
-          s.classList.toggle('active', i < rating);
-        });
-      }
+      const stars = slide.querySelector('.stars');
+      if (!stars) return;
+      stars.querySelectorAll('.star').forEach((s, i) => {
+        s.textContent = '';
+        s.classList.toggle('active', i < rating);
+      });
     });
   }
 
-  // Projects horizontal wheel -> horizontal scroll only
-  const projects = document.getElementById('projects-track');
-  const pPrev = document.getElementById('p-prev');
-  const pNext = document.getElementById('p-next');
-  if (projects) {
-    // wheel -> horizontal
-    projects.addEventListener('wheel', (e) => {
-      // convert vertical wheel to horizontal while hovering projects
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        projects.scrollLeft += e.deltaY;
-        e.preventDefault();
-      }
-    }, { passive: false });
-
-    const items = Array.from(projects.querySelectorAll('.project'));
-    let pIndex = 0;
-    let usePad = false;
-    const padProjects = () => {
-      const w = items[0]?.clientWidth || projects.clientWidth;
-      const style = getComputedStyle(projects);
-      const gap = parseFloat(style.gap || style.columnGap || '0') || 0;
-      const visible = Math.max(1, Math.floor((projects.clientWidth + gap) / (w + gap)));
-      // Wenn genug Karten vorhanden sind, um den View auszufüllen, kein Padding links/rechts
-      usePad = items.length < visible;
-      const pad = usePad ? Math.max(0, (projects.clientWidth - w) / 2) : 0;
-      projects.style.paddingLeft = pad + 'px';
-      projects.style.paddingRight = pad + 'px';
-    };
-    window.addEventListener('resize', padProjects);
-    padProjects();
-
-    const pGo = (i, smooth = true) => {
-      pIndex = Math.max(0, Math.min(items.length - 1, i));
-      const s = items[pIndex];
-      if (!s) return;
-      let left = s.offsetLeft - (projects.clientWidth - s.clientWidth) / 2;
-      if (!usePad) left = s.offsetLeft; // bei vollem View flush links starten
-      const maxLeft = projects.scrollWidth - projects.clientWidth;
-      left = Math.max(0, Math.min(maxLeft, left));
-      projects.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' });
-    };
-    pPrev?.addEventListener('click', () => pGo(pIndex - 1));
-    pNext?.addEventListener('click', () => pGo(pIndex + 1));
-    // start: wenn Padding aktiv (zu wenige Karten) -> zentriere erste, sonst flush links
-    if (usePad) pGo(0, false); else projects.scrollLeft = 0;
-  }
+  initSlider({
+    trackSelector: '#projects-track',
+    prevSelector: '#p-prev',
+    nextSelector: '#p-next',
+    breakpoints: [
+      { width: 0, perView: 1 },
+      { width: 640, perView: 2 },
+      { width: 1080, perView: 3 }
+    ]
+  });
 
   // Pricing cards: animated expand/collapse of features, per-card independent
   const priceCards = Array.from(document.querySelectorAll('.card.price'));
@@ -518,4 +407,189 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { threshold: 0.4 });
     statValues.forEach(el => io2.observe(el));
   }
+
+  // Process flow: trigger sequential highlight once the section is visible
+  const processFlow = document.querySelector('#process .process');
+  if (processFlow) {
+    const flowObserver = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        processFlow.classList.add('flow-visible');
+        obs.unobserve(processFlow);
+      });
+    }, { threshold: 0.35 });
+    flowObserver.observe(processFlow);
+  }
+
+  // Projects: trigger coordinated entrance once section is visible
+  const projectsTrack = document.getElementById('projects-track');
+  if (projectsTrack) {
+    const projectsObserver = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        projectsTrack.classList.add('flow-visible');
+        obs.unobserve(projectsTrack);
+      });
+    }, { threshold: 0.35 });
+    projectsObserver.observe(projectsTrack);
+  }
+
+  // Stats: enable soft glow animation after entering viewport
+  const statsGrid = document.querySelector('#stats .stats-grid');
+  if (statsGrid) {
+    const statsObserver = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        statsGrid.classList.add('glow-visible');
+        obs.unobserve(statsGrid);
+      });
+    }, { threshold: 0.3 });
+    statsObserver.observe(statsGrid);
+  }
+
+  // Image lightbox overlay: enlarge each image onsite with ESC/outside close support
+  const lightbox = document.getElementById('image-lightbox');
+  const lightboxImg = lightbox?.querySelector('img');
+  if (lightbox && lightboxImg) {
+    let previousOverflow = '';
+    const excludedImages = new Set();
+    // Skip the navbar logo so it keeps its jump-to-top behaviour
+    const navLogo = document.querySelector('.site-header .brand-logo');
+    if (navLogo) excludedImages.add(navLogo);
+    const lockScroll = () => {
+      previousOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+    };
+    const unlockScroll = () => {
+      if (previousOverflow) {
+        document.body.style.overflow = previousOverflow;
+      } else {
+        document.body.style.removeProperty('overflow');
+      }
+      previousOverflow = '';
+    };
+    const closeLightbox = () => {
+      if (!lightbox.classList.contains('is-visible')) return;
+      lightbox.classList.remove('is-visible');
+      lightbox.setAttribute('aria-hidden', 'true');
+      lightboxImg.removeAttribute('src');
+      lightboxImg.alt = '';
+      unlockScroll();
+    };
+    const openLightbox = (img) => {
+      const src = img.currentSrc || img.src;
+      if (!src) return;
+      lightboxImg.src = src;
+      lightboxImg.alt = img.alt || '';
+      lightbox.classList.add('is-visible');
+      lightbox.setAttribute('aria-hidden', 'false');
+      lockScroll();
+      lightbox.focus({ preventScroll: true });
+    };
+    document.querySelectorAll('img').forEach(img => {
+      if (img.closest('.lightbox') || excludedImages.has(img)) return;
+      img.style.cursor = 'zoom-in';
+      img.addEventListener('click', (event) => {
+        if (event.metaKey || event.ctrlKey) return;
+        event.preventDefault();
+        event.stopPropagation();
+        openLightbox(img);
+      });
+    });
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox) closeLightbox();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeLightbox();
+    });
+  }
 });
+
+function initSlider({ trackSelector, prevSelector, nextSelector, breakpoints }) {
+  const track = typeof trackSelector === 'string' ? document.querySelector(trackSelector) : trackSelector;
+  if (!track) return null;
+  const slides = Array.from(track.children).filter(el => el.nodeType === 1);
+  if (!slides.length) return null;
+  const prev = prevSelector ? document.querySelector(prevSelector) : null;
+  const next = nextSelector ? document.querySelector(nextSelector) : null;
+  const bps = (breakpoints && breakpoints.length ? breakpoints : [{ width: 0, perView: 1 }])
+    .slice().sort((a, b) => a.width - b.width);
+
+  let perView = 1;
+  let index = 0;
+  let maxIndex = Math.max(0, slides.length - perView);
+  const listeners = new Set();
+
+  const setPerView = () => {
+    const viewport = window.innerWidth || document.documentElement.clientWidth;
+    let candidate = bps[0].perView;
+    bps.forEach(bp => {
+      if (viewport >= bp.width) candidate = bp.perView;
+    });
+    candidate = Math.max(1, Math.min(candidate, slides.length));
+    perView = candidate;
+    track.style.setProperty('--slides-per-view', String(perView));
+    maxIndex = Math.max(0, slides.length - perView);
+  };
+
+  const emit = () => {
+    const state = { index, perView, count: slides.length };
+    listeners.forEach(fn => fn(state));
+  };
+
+  const goTo = (targetIndex, smooth = true) => {
+    const clamped = Math.max(0, Math.min(maxIndex, targetIndex));
+    index = clamped;
+    const slide = slides[clamped];
+    if (!slide) return;
+    track.scrollTo({ left: slide.offsetLeft, behavior: smooth ? 'smooth' : 'auto' });
+    emit();
+  };
+
+  prev?.addEventListener('click', () => goTo(index - 1));
+  next?.addEventListener('click', () => goTo(index + 1));
+
+  let scrollTimer = 0;
+  track.addEventListener('scroll', () => {
+    clearTimeout(scrollTimer);
+    scrollTimer = window.setTimeout(() => {
+      const { scrollLeft } = track;
+      let closest = 0;
+      let best = Infinity;
+      slides.forEach((slide, i) => {
+        const dist = Math.abs(slide.offsetLeft - scrollLeft);
+        if (dist < best) {
+          best = dist;
+          closest = i;
+        }
+      });
+      if (closest !== index) {
+        index = closest;
+        emit();
+      }
+    }, 80);
+  }, { passive: true });
+
+  window.addEventListener('resize', () => {
+    const previousIndex = index;
+    setPerView();
+    index = Math.min(previousIndex, maxIndex);
+    goTo(index, false);
+  });
+
+  setPerView();
+  goTo(0, false);
+
+  return {
+    track,
+    slides,
+    goTo,
+    onChange(fn) {
+      if (typeof fn === 'function') {
+        listeners.add(fn);
+        fn({ index, perView, count: slides.length });
+      }
+      return () => listeners.delete(fn);
+    }
+  };
+}
