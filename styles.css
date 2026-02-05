@@ -756,7 +756,7 @@ p { color: var(--muted); margin: 0 0 12px; }
   align-items: stretch;
   overflow-x: hidden;
   overflow-y: visible;
-  overscroll-behavior: contain;
+  overscroll-behavior: auto;
   scroll-snap-type: x mandatory;
   padding: 12px;
   margin: 0;
