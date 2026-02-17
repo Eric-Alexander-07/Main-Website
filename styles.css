@@ -191,6 +191,32 @@ p { color: var(--muted); margin: 0 0 12px; }
   background: rgba(255,255,255,0.05);
   border-color: rgba(255,255,255,0.14);
 }
+/* "15 Min." pill inside primary button */
+.btn-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.22);
+  color: #fff;
+  margin-left: 6px;
+  line-height: 1.4;
+}
+/* Subtle WhatsApp quick-link below hero buttons */
+.wa-quick {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: .85rem;
+  text-decoration: none;
+  transition: color .2s;
+}
+.wa-quick:hover { color: #25d366; }
 
 /* Hero */
 .hero { position: relative; overflow: clip; padding: 120px 0 100px; }
