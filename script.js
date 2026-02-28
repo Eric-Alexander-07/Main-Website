@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
     }
-  } catch {}
+  } catch { }
 
   const testimonialSlider = initSlider({
     trackSelector: '#testimonial-track',
@@ -137,16 +137,96 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  initSlider({
-    trackSelector: '#projects-track',
-    prevSelector: '#p-prev',
-    nextSelector: '#p-next',
-    breakpoints: [
-      { width: 0, perView: 1 },
-      { width: 640, perView: 2 },
-      { width: 1080, perView: 3 }
-    ]
-  });
+  // Portfolio horizontal scroll (1 slide per view, driven by vertical scroll)
+  const portfolioOuter = document.getElementById('portfolio-scroll');
+  const portfolioTrack = document.getElementById('projects-track');
+  if (portfolioOuter && portfolioTrack) {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const slides = Array.from(portfolioTrack.querySelectorAll('.project-slide'));
+    if (!slides.length) return;
+
+    const sticky = portfolioOuter.querySelector('.h-scroll-sticky');
+
+    // ── Desktop: sticky + translateX ─────────────────────────────────────────
+    const scrollPerSlide = () => window.innerHeight;
+
+    const setOuterHeight = () => {
+      if (window.innerWidth < 720 || prefersReduced) { portfolioOuter.style.height = ''; return; }
+      portfolioOuter.style.height = (window.innerHeight + (slides.length - 1) * scrollPerSlide()) + 'px';
+    };
+
+    const onScroll = () => {
+      if (window.innerWidth < 720 || prefersReduced) { portfolioTrack.style.transform = ''; return; }
+      const rect = portfolioOuter.getBoundingClientRect();
+      const scrollRange = portfolioOuter.offsetHeight - window.innerHeight;
+      if (scrollRange <= 0) return;
+      const progress = Math.max(0, Math.min(1, -rect.top / scrollRange));
+      portfolioTrack.style.transform = 'translateX(' + (-progress * (slides.length - 1) * window.innerWidth).toFixed(1) + 'px)';
+    };
+
+    // ── Mobile: CSS scroll-snap carousel with dots + prev/next ───────────────
+    let mobileNav = null;
+
+    const getActiveIdx = () => Math.round(sticky.scrollLeft / window.innerWidth);
+
+    const scrollToSlide = (idx) => {
+      sticky.scrollTo({ left: idx * window.innerWidth, behavior: 'smooth' });
+    };
+
+    const buildMobileNav = () => {
+      if (mobileNav) return;
+      mobileNav = document.createElement('div');
+      mobileNav.className = 'portfolio-mobile-nav';
+
+      const prevBtn = document.createElement('button');
+      prevBtn.className = 'portfolio-btn';
+      prevBtn.setAttribute('aria-label', 'Vorheriges Projekt');
+      prevBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+      const dotsWrap = document.createElement('div');
+      dotsWrap.className = 'portfolio-dots';
+      const dots = slides.map((_, i) => {
+        const dot = document.createElement('button');
+        dot.className = 'portfolio-dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('aria-label', 'Projekt ' + (i + 1));
+        dot.addEventListener('click', () => scrollToSlide(i));
+        dotsWrap.appendChild(dot);
+        return dot;
+      });
+
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'portfolio-btn';
+      nextBtn.setAttribute('aria-label', 'Nächstes Projekt');
+      nextBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+      prevBtn.addEventListener('click', () => scrollToSlide(Math.max(0, getActiveIdx() - 1)));
+      nextBtn.addEventListener('click', () => scrollToSlide(Math.min(slides.length - 1, getActiveIdx() + 1)));
+
+      sticky.addEventListener('scroll', () => {
+        const idx = getActiveIdx();
+        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+      }, { passive: true });
+
+      mobileNav.append(prevBtn, dotsWrap, nextBtn);
+      portfolioOuter.insertAdjacentElement('afterend', mobileNav);
+    };
+
+    const teardownMobileNav = () => {
+      if (!mobileNav) return;
+      mobileNav.remove();
+      mobileNav = null;
+    };
+
+    const init = () => {
+      setOuterHeight();
+      onScroll();
+      if (window.innerWidth < 720) buildMobileNav();
+      else teardownMobileNav();
+    };
+    window.addEventListener('load', init);
+    window.addEventListener('resize', init);
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
 
   // Pricing cards: animated expand/collapse of features, per-card independent
   const priceCards = Array.from(document.querySelectorAll('.card.price'));
@@ -383,7 +463,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Count-up animation for stats
-  const statValues = document.querySelectorAll('.stat .value[data-count]');
+  // Selector deckt .stat .value (Markt-Stats), .lh-num (Lighthouse) und
+  // beliebige [data-count]-Elemente in den neuen Highlight-Karten ab.
+  const statValues = document.querySelectorAll('[data-count]');
   if (statValues.length) {
     const io2 = new IntersectionObserver(entries => {
       entries.forEach(e => {
@@ -421,17 +503,18 @@ document.addEventListener('DOMContentLoaded', () => {
     flowObserver.observe(processFlow);
   }
 
-  // Projects: trigger coordinated entrance once section is visible
+  // Projects: trigger coordinated entrance once section enters viewport
   const projectsTrack = document.getElementById('projects-track');
-  if (projectsTrack) {
+  const portfolioObserveTarget = document.getElementById('portfolio-scroll') || projectsTrack;
+  if (projectsTrack && portfolioObserveTarget) {
     const projectsObserver = new IntersectionObserver((entries, obs) => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return;
         projectsTrack.classList.add('flow-visible');
-        obs.unobserve(projectsTrack);
+        obs.unobserve(portfolioObserveTarget);
       });
-    }, { threshold: 0.35 });
-    projectsObserver.observe(projectsTrack);
+    }, { threshold: 0.05 });
+    projectsObserver.observe(portfolioObserveTarget);
   }
 
   // Stats: enable soft glow animation after entering viewport
@@ -445,6 +528,87 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }, { threshold: 0.3 });
     statsObserver.observe(statsGrid);
+  }
+
+  // ─── Parallax ─────────────────────────────────────────────────────────────
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!prefersReducedMotion) {
+    const heroVisual = document.getElementById('hero-visual');
+
+    // Hero visual: raw-scrollY based (works best for top-of-page element)
+    if (heroVisual) {
+      window.addEventListener('scroll', () => {
+        if (window.innerWidth < 980) { heroVisual.style.transform = ''; return; }
+        heroVisual.style.transform = 'translateY(' + (window.scrollY * 0.28).toFixed(1) + 'px)';
+      }, { passive: true });
+    }
+
+    // Section elements: distance-from-viewport-centre based
+    // Elements above centre drift upward; below centre drift downward → natural depth feel
+    const pxItems = [
+      { sel: '.hero-bg',     factor: 0.18, minW: 0   },
+      { sel: '.about-media', factor: 0.06, minW: 720 },
+      { sel: '.price-grid',  factor: 0.08, minW: 720 },
+    ].map(cfg => ({ ...cfg, el: document.querySelector(cfg.sel) }))
+     .filter(cfg => cfg.el);
+
+    if (pxItems.length) {
+      const tick = () => {
+        const vh2 = window.innerHeight / 2;
+        pxItems.forEach(({ el, factor, minW }) => {
+          if (window.innerWidth < minW) { el.style.transform = ''; return; }
+          const rect = el.getBoundingClientRect();
+          const dist = (rect.top + rect.height / 2) - vh2;
+          el.style.transform = 'translateY(' + (dist * factor).toFixed(1) + 'px)';
+        });
+      };
+      window.addEventListener('scroll', tick, { passive: true });
+      window.addEventListener('resize', tick);
+      tick();
+    }
+  }
+
+  // Portfolio section: twinkling star canvas (desktop only, disabled on reduced-motion)
+  const portfolioSticky = document.querySelector('#portfolio-scroll .h-scroll-sticky');
+  if (portfolioSticky && !prefersReducedMotion) {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'portfolio-stars';
+    portfolioSticky.insertAdjacentElement('afterbegin', canvas);
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    const resize = () => {
+      canvas.width  = portfolioSticky.clientWidth  || window.innerWidth;
+      canvas.height = portfolioSticky.clientHeight || window.innerHeight;
+      stars = Array.from({ length: 110 }, () => ({
+        x:     Math.random() * canvas.width,
+        y:     Math.random() * canvas.height,
+        r:     Math.random() * 1.0 + 0.3,
+        base:  Math.random() * 0.28 + 0.06,
+        speed: Math.random() * 0.5 + 0.15,
+        phase: Math.random() * Math.PI * 2,
+      }));
+    };
+
+    let t = 0;
+    const drawStars = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      t += 0.007;
+      for (const s of stars) {
+        const a = s.base + Math.sin(t * s.speed + s.phase) * s.base * 0.6;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${a.toFixed(3)})`;
+        ctx.fill();
+      }
+      requestAnimationFrame(drawStars);
+    };
+
+    window.addEventListener('load', resize);
+    window.addEventListener('resize', resize, { passive: true });
+    resize();
+    drawStars();
   }
 
   // Image lightbox overlay: enlarge each image onsite with ESC/outside close support
